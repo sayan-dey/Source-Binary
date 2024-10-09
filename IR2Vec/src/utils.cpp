@@ -105,9 +105,11 @@ std::string IR2Vec::updatedRes(IR2Vec::Vector tmp, llvm::Function *f,
   std::string res = "";
   auto demangledName = getDemagledName(f);
 
-  res += M->getSourceFileName() + "__" + demangledName + "\t";
+  // res += M->getSourceFileName() + "__" + demangledName + "\t";  //commented(sayan)
+  res += M->getSourceFileName() + ":" + demangledName + "\t"; //added (sayan)
 
-  res += "=\t";
+
+  // res += "=\t"; //commented(sayan)
   for (auto i : tmp) {
     if ((i <= 0.0001 && i > 0) || (i < 0 && i >= -0.0001)) {
       i = 0;
@@ -117,3 +119,29 @@ std::string IR2Vec::updatedRes(IR2Vec::Vector tmp, llvm::Function *f,
 
   return res;
 }
+
+
+std::string IR2Vec::updatedRes_OTA(std::array<IR2Vec::Vector, 4> tmp, llvm::Function *f,
+                               llvm::Module *M) {
+  std::string res = "";
+  auto demangledName = getDemagledName(f);
+
+  // res += M->getSourceFileName() + "__" + demangledName + "\t";  //commented(sayan)
+  res += M->getSourceFileName() + ":" + demangledName + "\t"; //added (sayan)
+
+
+  // res += "=\t"; //commented(sayan)
+  for (int ind =0;ind<3;ind++) //funcVector_O, funcVector_T, funcVector_A
+  {
+    auto funcVector = tmp[ind];
+    for (auto i : funcVector) {
+      if ((i <= 0.0001 && i > 0) || (i < 0 && i >= -0.0001)) {
+        i = 0;
+      }
+      res += std::to_string(i) + "\t";
+    }
+  }
+
+  return res;
+}
+

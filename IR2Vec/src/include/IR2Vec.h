@@ -10,6 +10,7 @@
 #include "llvm/ADT/MapVector.h"
 #include "llvm/IR/Module.h"
 #include <string>
+#include <array>
 
 namespace IR2Vec {
 
@@ -26,6 +27,9 @@ class Embeddings {
 
   llvm::SmallMapVector<const llvm::Instruction *, Vector, 128> instVecMap;
   llvm::SmallMapVector<const llvm::Function *, Vector, 16> funcVecMap;
+
+  llvm::SmallMapVector<const llvm::Function *, std::array<IR2Vec::Vector, 4>, 16> funcVecMap_OTA;
+
   Vector pgmVector;
 
 public:

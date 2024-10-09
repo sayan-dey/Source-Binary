@@ -14,7 +14,18 @@
 #include "llvm/Transforms/Scalar.h"
 #include <fstream>
 
+//header files included by me
+#include <vector>
+#include <unordered_map>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/ADT/SmallPtrSet.h>
+#include <llvm/ADT/SmallVector.h>
+#include <llvm/Support/raw_ostream.h>
+#include <random>
+
 using namespace llvm;
+using namespace std;
 
 void CollectIR::generateTriplets(std::ostream &out) {
 
@@ -30,7 +41,19 @@ void CollectIR::generateTriplets(std::ostream &out) {
     // llvm::outs()<<"Function name: "<<F.getName()<<"\n";
 
     std::string res="";
-    for (BasicBlock &B : F)
+
+    //write randomWalk calling code here
+
+    // std::vector<BasicBlock*> block_addresses;
+    // for (BasicBlock &BB : F) {
+    //     block_addresses.push_back(&BB);
+    // }
+
+    // int k=5, n=2;
+    // std::vector<std::vector<BasicBlock*>> bbWalks = randomWalk(F, block_addresses, k, n);
+
+
+    for (BasicBlock &B : F) //need to traverse blocks of randomwalks here
       traverseBasicBlock(B,res);
 
     if(res.size()>0)
@@ -125,4 +148,71 @@ void CollectIR::traverseBasicBlock(BasicBlock &B, std::string &res) {
       }
     }
   }
+}
+
+
+std::vector<std::vector<BasicBlock*>> CollectIR::randomWalk(Function &F, std::vector<BasicBlock*> &block_addresses, int k, int n) {
+    std::unordered_map<BasicBlock*, int> func_block_freq;
+    std::vector<std::vector<BasicBlock*>> walk_visited_blocks_list;
+
+    std::vector<BasicBlock*> blocks;
+
+    // Putting all block of size>0 in a list
+    for (BasicBlock &BB : F) {
+        if (BB.size() > 0 && std::find(block_addresses.begin(), block_addresses.end(), &BB) != block_addresses.end()) {
+            blocks.push_back(&BB);
+        }
+    }
+
+    while (true) {
+        // Choosing possible starting blocks
+        std::vector<BasicBlock*> starting_blocks;
+        for (BasicBlock *BB : blocks) {
+            if (func_block_freq.find(BB) == func_block_freq.end() || func_block_freq[BB] < n) {
+                starting_blocks.push_back(BB);
+            }
+        }
+
+        if (starting_blocks.empty()) {
+            break;
+        }
+
+        BasicBlock *current_block = starting_blocks[rand() % starting_blocks.size()];
+
+        std::vector<BasicBlock*> walk_visited_blocks;
+        int num_vis = 0;
+
+        while (num_vis < k && std::find(walk_visited_blocks.begin(), walk_visited_blocks.end(), current_block) == walk_visited_blocks.end()) {
+            if (func_block_freq.find(current_block) != func_block_freq.end()) {
+                func_block_freq[current_block]++;
+            } else {
+                func_block_freq[current_block] = 1;
+            }
+
+            walk_visited_blocks.push_back(current_block);
+
+            if (current_block->size() > 0) {
+                num_vis++;
+            }
+
+            if (succ_size(current_block) == 1) {
+                current_block = *succ_begin(current_block);
+                if (std::find(block_addresses.begin(), block_addresses.end(), current_block) == block_addresses.end()) {
+                    break;
+                }
+            } else if (succ_size(current_block) > 1) {
+                SmallVector<BasicBlock*, 4> successors(succ_begin(current_block), succ_end(current_block));
+                current_block = successors[rand() % successors.size()];
+                if (std::find(block_addresses.begin(), block_addresses.end(), current_block) == block_addresses.end()) {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+
+        walk_visited_blocks_list.push_back(walk_visited_blocks);
+    }
+
+    return walk_visited_blocks_list;
 }

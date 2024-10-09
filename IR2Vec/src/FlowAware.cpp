@@ -349,7 +349,7 @@ Vector IR2Vec_FA::func2Vec(Function &F,
   SCCAdjList.clear();
 
   Vector funcVector(DIM, 0);
-
+  
   ReversePostOrderTraversal<Function *> RPOT(&F);
 
   for (auto *b : RPOT) {

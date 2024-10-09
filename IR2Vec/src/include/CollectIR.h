@@ -22,6 +22,7 @@ private:
   llvm::Module &M;
 
   void traverseBasicBlock(llvm::BasicBlock &B, std::string &res);
+  std::vector<std::vector<llvm::BasicBlock*>> randomWalk(llvm::Function &F, std::vector<llvm::BasicBlock*> &block_addresses, int k, int n);
 
 public:
   // CollectIR(std::unique_ptr<llvm::Module> &M) : M{*M} { res = ""; }
