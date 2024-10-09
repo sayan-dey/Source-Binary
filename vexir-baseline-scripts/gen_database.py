@@ -80,7 +80,7 @@ def execute_angr_command(root, max_workers):
                         
                         for bindir in bindir_list:
                             bindirpath = os.path.join(config_dir, bindir)
-                            new_directory_name = f"{bindir}-data-inlined-extcall-rwk50n2-n2-newseedembed-patched-db"
+                            new_directory_name = f"{bindir}-data-inlined-extcall-newseedembed-patched-db"
                             new_directory_path = os.path.join(config_dir, new_directory_name)
                             
                             if not os.path.exists(new_directory_path):
