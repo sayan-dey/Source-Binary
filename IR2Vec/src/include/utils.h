@@ -26,7 +26,7 @@ namespace IR2Vec {
     }                                                                          \
   })
 
-#define DIM 300
+#define DIM 63
 using Vector = llvm::SmallVector<double, DIM>;
 using abi::__cxa_demangle;
 
@@ -53,6 +53,8 @@ std::string getDemagledName(const llvm::Function *function);
 char *getActualName(llvm::Function *function);
 std::string updatedRes(IR2Vec::Vector tmp, llvm::Function *f, llvm::Module *M);
 std::string updatedRes_OTA(std::array<IR2Vec::Vector, 4> tmp, llvm::Function *f, llvm::Module *M); 
+std::string updatedRes_opchist(std::array<IR2Vec::Vector, 1> tmp, llvm::Function *f,
+                               llvm::Module *M);
 } // namespace IR2Vec
 
 #endif

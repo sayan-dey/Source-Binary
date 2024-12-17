@@ -14,7 +14,7 @@
 
 namespace IR2Vec {
 
-#define DIM 300
+#define DIM 63
 using Vector = llvm::SmallVector<double, DIM>;
 
 enum IR2VecMode { FlowAware, Symbolic };
@@ -29,6 +29,7 @@ class Embeddings {
   llvm::SmallMapVector<const llvm::Function *, Vector, 16> funcVecMap;
 
   llvm::SmallMapVector<const llvm::Function *, std::array<IR2Vec::Vector, 4>, 16> funcVecMap_OTA;
+  llvm::SmallMapVector<const llvm::Function *, std::array<IR2Vec::Vector, 1>, 16> funcVecMap_opchist;
 
   Vector pgmVector;
 

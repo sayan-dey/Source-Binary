@@ -121,7 +121,7 @@ std::string IR2Vec::updatedRes(IR2Vec::Vector tmp, llvm::Function *f,
 }
 
 
-std::string IR2Vec::updatedRes_OTA(std::array<IR2Vec::Vector, 4> tmp, llvm::Function *f,
+std::string IR2Vec::updatedRes_opchist(std::array<IR2Vec::Vector, 1> tmp, llvm::Function *f,
                                llvm::Module *M) {
   std::string res = "";
   auto demangledName = getDemagledName(f);
@@ -131,17 +131,15 @@ std::string IR2Vec::updatedRes_OTA(std::array<IR2Vec::Vector, 4> tmp, llvm::Func
 
 
   // res += "=\t"; //commented(sayan)
-  for (int ind =0;ind<3;ind++) //funcVector_O, funcVector_T, funcVector_A
-  {
-    auto funcVector = tmp[ind];
-    for (auto i : funcVector) {
-      if ((i <= 0.0001 && i > 0) || (i < 0 && i >= -0.0001)) {
-        i = 0;
-      }
-      res += std::to_string(i) + "\t";
+  
+  auto funcVector_O = tmp[0];
+  for (auto i : funcVector_O) {
+    if ((i <= 0.0001 && i > 0) || (i < 0 && i >= -0.0001)) {
+      i = 0;
     }
+    res += std::to_string(i) + "\t";
   }
-
+  
   return res;
 }
 
