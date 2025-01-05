@@ -41,12 +41,32 @@ np.set_printoptions(threshold=sys.maxsize)
 
 def contrastiveForward(data, device, model, lossFn, criterion):
     
-    embed_v2v, embed_i2v, label = data
+    # embed_v2v, embed_i2v, label = data
+    # strembed_v2v,libembed_v2v,embed_v2v,strembed_i2v,libembed_i2v,embed_i2v,label = data
+
+    strembed_v2v, libembed_v2v, embed_O_v2v, embed_T_v2v, embed_A_v2v, strembed_i2v, libembed_i2v, embed_O_i2v, embed_T_i2v, embed_A_i2v, label = data
     
     # print(f"device: {device}")
-    embed_v2v = embed_v2v.float().view(-1, 1, NUM_SB, INP_DIM).to(device)
-    embed_i2v = embed_i2v.float().view(-1, 1, NUM_SB, INP_DIM).to(device)
-               
+    strembed_v2v, strembed_i2v, label = strembed_v2v.float().to(device), strembed_i2v.float().to(device), label.float().to(device)
+    libembed_v2v, libembed_i2v = libembed_v2v.float().to(device), libembed_i2v.float().to(device)
+
+    embed_O_v2v = embed_O_v2v.float().view(-1, INP_DIM).to(device)
+    embed_T_v2v = embed_T_v2v.float().view(-1, INP_DIM).to(device)
+    embed_A_v2v = embed_A_v2v.float().view(-1, INP_DIM).to(device)
+    embed_O_i2v = embed_O_i2v.float().view(-1, INP_DIM).to(device)
+    embed_T_i2v = embed_T_i2v.float().view(-1, INP_DIM).to(device)
+    embed_A_i2v = embed_A_i2v.float().view(-1, INP_DIM).to(device)
+
+    pred1, attn_weights = model(embed_O_v2v, embed_T_v2v, embed_A_v2v, strembed_v2v, libembed_v2v)
+    pred1 = pred1.view(-1, OUT_DIM)
+    pred2, attn_weights = model(embed_O_i2v, embed_T_i2v, embed_A_i2v, strembed_i2v, libembed_i2v)
+    pred2 = pred2.view(-1, OUT_DIM)
+
+    # print("pred1: ",pred1)
+    # print("pred2: ",pred2)
+
+    
+    '''
     pred1 = model(embed_v2v)
     # print(f"pred1.shape: {pred1.shape}")
     pred1 = pred1.view(-1, OUT_DIM)
@@ -55,6 +75,7 @@ def contrastiveForward(data, device, model, lossFn, criterion):
     # print(f"pred2.shape: {pred2.shape}")
     pred2 = pred2.view(-1, OUT_DIM)
     # print(f"pred2.shape: {pred2.shape}")
+    '''
     
 
     if lossFn == 'cosine':
@@ -153,11 +174,11 @@ def trainSiamese(args, model, train_dataloader, val_dataloader, optimizer, crite
         losses = []
         val_losses = []
         start = time.time()
-
+        
         model.train()
         for _, data in enumerate(train_dataloader): 
             optimizer.zero_grad()
-
+            
             # Contrastive loss
             if args.loss == 'cont':
                 loss = contrastiveForward(data, device, model, args.loss, criterion)
@@ -255,9 +276,10 @@ def trainSiamese(args, model, train_dataloader, val_dataloader, optimizer, crite
     # Plotting the epoch vs loss
     plt.figure(figsize=(20, 14))
     plt.plot(epoch_nums, avg_training_losses, marker='o', linestyle='-')
+    plt.yscale('log')  # Set the y-axis to a logarithmic scale
     plt.xlabel('Epoch', fontsize=28)
     plt.ylabel('Loss', fontsize=28)
-    plt.title('Epoch vs Loss', fontsize=34)
+    plt.title('Epoch vs Loss (in log scale)', fontsize=34)
     plt.grid(True)
     plt.xticks(fontsize=22)
     plt.yticks(fontsize=22)
